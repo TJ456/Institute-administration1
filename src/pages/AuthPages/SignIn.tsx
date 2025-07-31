@@ -6,8 +6,8 @@ export default function SignIn() {
   return (
     <>
       <PageMeta
-        title="React.js SignIn Dashboard | Institute Administration- Next.js Admin Dashboard Template"
-        description="This is React.js SignIn Tables Dashboard page for Institute Administration- React.js Tailwind CSS Admin Dashboard Template"
+        title="Sign In | InfuniLMS - Institute Administration"
+        description="Sign in to InfuniLMS Institute Administration with your Gmail account"
       />
       <AuthLayout>
         <SignInForm />

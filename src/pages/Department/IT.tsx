@@ -59,6 +59,20 @@ export default function ITDepartment() {
   const [editSemesterNumber, setEditSemesterNumber] = useState("");
   const [editSemesterYear, setEditSemesterYear] = useState("");
   
+  // Edit Department states
+  const [isEditDepartmentModalOpen, setIsEditDepartmentModalOpen] = useState(false);
+  const [editDeptEmail, setEditDeptEmail] = useState("");
+  const [editDeptPassword, setEditDeptPassword] = useState("");
+  const [editDeptDescription, setEditDeptDescription] = useState("");
+  
+  // Edit Batch states
+  const [isEditBatchModalOpen, setIsEditBatchModalOpen] = useState(false);
+  const [selectedEditBatch, setSelectedEditBatch] = useState<Batch | null>(null);
+  const [editBatchName, setEditBatchName] = useState("");
+  const [editBatchYear, setEditBatchYear] = useState("");
+  const [editBatchSemester, setEditBatchSemester] = useState("");
+  const [editBatchStudents, setEditBatchStudents] = useState("");
+  
   const [departmentInfo, setDepartmentInfo] = useState<DepartmentInfo>({
     email: "it.department@infuni.edu",
     password: "ITDept@2024",
@@ -327,6 +341,73 @@ export default function ITDepartment() {
     }
   };
 
+  // Edit Department functions
+  const openEditDepartmentModal = () => {
+    setEditDeptEmail(departmentInfo.email);
+    setEditDeptPassword(departmentInfo.password);
+    setEditDeptDescription(departmentInfo.description);
+    setIsEditDepartmentModalOpen(true);
+  };
+
+  const closeEditDepartmentModal = () => {
+    setIsEditDepartmentModalOpen(false);
+    setEditDeptEmail("");
+    setEditDeptPassword("");
+    setEditDeptDescription("");
+  };
+
+  const saveDepartmentEdit = () => {
+    if (editDeptEmail.trim() && editDeptPassword.trim() && editDeptDescription.trim()) {
+      setDepartmentInfo(prev => ({
+        ...prev,
+        email: editDeptEmail.trim(),
+        password: editDeptPassword.trim(),
+        description: editDeptDescription.trim()
+      }));
+      closeEditDepartmentModal();
+    }
+  };
+
+  // Edit Batch functions
+  const openEditBatchModal = (batch: Batch) => {
+    setSelectedEditBatch(batch);
+    setEditBatchName(batch.name);
+    setEditBatchYear(batch.year);
+    setEditBatchSemester(batch.semester);
+    setEditBatchStudents(batch.students.toString());
+    setIsEditBatchModalOpen(true);
+  };
+
+  const closeEditBatchModal = () => {
+    setIsEditBatchModalOpen(false);
+    setSelectedEditBatch(null);
+    setEditBatchName("");
+    setEditBatchYear("");
+    setEditBatchSemester("");
+    setEditBatchStudents("");
+  };
+
+  const saveBatchEdit = () => {
+    if (selectedEditBatch && editBatchName.trim()) {
+      setCourses(prev => prev.map(course => ({
+        ...course,
+        batches: course.batches.map(batch => {
+          if (batch.id === selectedEditBatch.id) {
+            return {
+              ...batch,
+              name: editBatchName.trim(),
+              year: editBatchYear.trim() || "TBD",
+              semester: editBatchSemester.trim() || "TBD",
+              students: parseInt(editBatchStudents) || 0
+            };
+          }
+          return batch;
+        })
+      })));
+      closeEditBatchModal();
+    }
+  };
+
   return (
     <>
       <PageMeta
@@ -340,10 +421,13 @@ export default function ITDepartment() {
             Information Technology (IT)
           </h1>
           <button 
-            onClick={() => setIsAddBatchModalOpen(true)}
-            className="inline-flex items-center justify-center rounded-md bg-blue-600 py-2 px-4 text-center font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 lg:px-6 xl:px-8 shadow-lg"
+            onClick={openEditDepartmentModal}
+            className="inline-flex items-center justify-center rounded-md bg-green-600 py-2 px-4 text-center font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 lg:px-6 xl:px-8 shadow-lg"
           >
-            Add Batch
+            <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit Department
           </button>
         </div>
 
@@ -491,9 +575,20 @@ export default function ITDepartment() {
                               <h5 className="text-lg font-semibold text-black dark:text-white">
                                 {activeBatch.name}
                               </h5>
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
-                                {activeBatch.students} students
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                  {activeBatch.students} students
+                                </span>
+                                <button
+                                  onClick={() => openEditBatchModal(activeBatch)}
+                                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-yellow-600 text-white hover:bg-yellow-700 transition-colors"
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                  Edit
+                                </button>
+                              </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                               <div>
@@ -826,6 +921,194 @@ export default function ITDepartment() {
                   </button>
                   <button
                     onClick={closeEditSemesterModal}
+                    className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 font-medium shadow-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Department Modal */}
+        {isEditDepartmentModalOpen && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-lg bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 relative z-[100000]">
+              <div className="bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Edit Department Information
+                  </h3>
+                  <button
+                    onClick={closeEditDepartmentModal}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Department Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={editDeptEmail}
+                    onChange={(e) => setEditDeptEmail(e.target.value)}
+                    placeholder="department.email@infuni.edu"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Department Password *
+                  </label>
+                  <input
+                    type="text"
+                    value={editDeptPassword}
+                    onChange={(e) => setEditDeptPassword(e.target.value)}
+                    placeholder="Enter department password"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div className="mb-6">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Department Description *
+                  </label>
+                  <textarea
+                    value={editDeptDescription}
+                    onChange={(e) => setEditDeptDescription(e.target.value)}
+                    placeholder="Enter department description..."
+                    rows={4}
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={saveDepartmentEdit}
+                    disabled={!editDeptEmail.trim() || !editDeptPassword.trim() || !editDeptDescription.trim()}
+                    className="flex-1 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium shadow-lg transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={closeEditDepartmentModal}
+                    className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 font-medium shadow-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Batch Modal */}
+        {isEditBatchModalOpen && selectedEditBatch && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-lg bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 relative z-[100000]">
+              <div className="bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Edit Batch Information
+                  </h3>
+                  <button
+                    onClick={closeEditBatchModal}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                  <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                    Editing: {selectedEditBatch.name}
+                  </p>
+                </div>
+
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Batch Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={editBatchName}
+                    onChange={(e) => setEditBatchName(e.target.value)}
+                    placeholder="Enter batch name (e.g., Batch 1)"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Academic Year
+                  </label>
+                  <input
+                    type="text"
+                    value={editBatchYear}
+                    onChange={(e) => setEditBatchYear(e.target.value)}
+                    placeholder="Enter academic year (e.g., 2024-2028)"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Current Semester
+                  </label>
+                  <select
+                    value={editBatchSemester}
+                    onChange={(e) => setEditBatchSemester(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  >
+                    <option value="">Select Semester</option>
+                    <option value="1st Semester">1st Semester</option>
+                    <option value="2nd Semester">2nd Semester</option>
+                    <option value="3rd Semester">3rd Semester</option>
+                    <option value="4th Semester">4th Semester</option>
+                    <option value="5th Semester">5th Semester</option>
+                    <option value="6th Semester">6th Semester</option>
+                    <option value="7th Semester">7th Semester</option>
+                    <option value="8th Semester">8th Semester</option>
+                  </select>
+                </div>
+
+                <div className="mb-6">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Number of Students
+                  </label>
+                  <input
+                    type="number"
+                    value={editBatchStudents}
+                    onChange={(e) => setEditBatchStudents(e.target.value)}
+                    placeholder="Enter number of students"
+                    min="0"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={saveBatchEdit}
+                    disabled={!editBatchName.trim()}
+                    className="flex-1 bg-yellow-600 text-white py-3 px-4 rounded-lg hover:bg-yellow-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium shadow-lg transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={closeEditBatchModal}
                     className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 font-medium shadow-lg transition-colors"
                   >
                     Cancel
