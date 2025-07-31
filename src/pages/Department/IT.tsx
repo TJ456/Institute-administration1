@@ -52,12 +52,7 @@ export default function ITDepartment() {
   // HOD Management states
   const [isAssignHODModalOpen, setIsAssignHODModalOpen] = useState(false);
   
-  // Edit Semester states
-  const [isEditSemesterModalOpen, setIsEditSemesterModalOpen] = useState(false);
-  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null);
-  const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null);
-  const [editSemesterNumber, setEditSemesterNumber] = useState("");
-  const [editSemesterYear, setEditSemesterYear] = useState("");
+
   
   // Edit Department states
   const [isEditDepartmentModalOpen, setIsEditDepartmentModalOpen] = useState(false);
@@ -297,50 +292,6 @@ export default function ITDepartment() {
     closeAssignHODModal();
   };
 
-  // Edit Semester functions
-  const openEditSemesterModal = (semester: Semester, batch: Batch) => {
-    setSelectedSemester(semester);
-    setSelectedBatch(batch);
-    setEditSemesterNumber(semester.semNumber.toString());
-    setEditSemesterYear(semester.semYear);
-    setIsEditSemesterModalOpen(true);
-  };
-
-  const closeEditSemesterModal = () => {
-    setIsEditSemesterModalOpen(false);
-    setSelectedSemester(null);
-    setSelectedBatch(null);
-    setEditSemesterNumber("");
-    setEditSemesterYear("");
-  };
-
-  const saveSemesterEdit = () => {
-    if (selectedSemester && selectedBatch && editSemesterNumber && editSemesterYear) {
-      setCourses(prev => prev.map(course => ({
-        ...course,
-        batches: course.batches.map(batch => {
-          if (batch.id === selectedBatch.id) {
-            return {
-              ...batch,
-              semesters: batch.semesters.map(sem => {
-                if (sem.id === selectedSemester.id) {
-                  return {
-                    ...sem,
-                    semNumber: parseInt(editSemesterNumber),
-                    semYear: editSemesterYear
-                  };
-                }
-                return sem;
-              })
-            };
-          }
-          return batch;
-        })
-      })));
-      closeEditSemesterModal();
-    }
-  };
-
   // Edit Department functions
   const openEditDepartmentModal = () => {
     setEditDeptEmail(departmentInfo.email);
@@ -396,9 +347,9 @@ export default function ITDepartment() {
             return {
               ...batch,
               name: editBatchName.trim(),
-              year: editBatchYear.trim() || "TBD",
-              semester: editBatchSemester.trim() || "TBD",
-              students: parseInt(editBatchStudents) || 0
+              year: editBatchYear.trim() || batch.year,
+              semester: editBatchSemester.trim() || batch.semester,
+              students: parseInt(editBatchStudents) || batch.students
             };
           }
           return batch;
@@ -635,26 +586,14 @@ export default function ITDepartment() {
                                           {semester.semYear}
                                         </td>
                                         <td className="px-4 py-3 text-sm">
-                                          <div className="flex items-center gap-2">
-                                            <Link
-                                              to={semester.route}
-                                              className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                                            >
-                                              View Details
-                                              <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                              </svg>
-                                            </Link>
-                                            <button
-                                              onClick={() => openEditSemesterModal(semester, activeBatch)}
-                                              className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors"
-                                            >
-                                              Edit
-                                              <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                              </svg>
-                                            </button>
-                                          </div>
+                                          <Link
+                                            to={semester.route}
+                                            className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                                          >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                          </Link>
                                         </td>
                                       </tr>
                                     ))
@@ -841,87 +780,6 @@ export default function ITDepartment() {
                   <button
                     onClick={closeAssignHODModal}
                     className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Edit Semester Modal */}
-        {isEditSemesterModalOpen && selectedSemester && selectedBatch && (
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 relative z-[100000]">
-              <div className="bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                    Edit Semester
-                  </h3>
-                  <button
-                    onClick={closeEditSemesterModal}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                    Editing: {selectedBatch.name} - Semester {selectedSemester.semNumber}
-                  </p>
-                </div>
-
-                <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Semester Number *
-                  </label>
-                  <select
-                    value={editSemesterNumber}
-                    onChange={(e) => setEditSemesterNumber(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  >
-                    <option value="">Select Semester</option>
-                    <option value="1">1st Semester</option>
-                    <option value="2">2nd Semester</option>
-                    <option value="3">3rd Semester</option>
-                    <option value="4">4th Semester</option>
-                    <option value="5">5th Semester</option>
-                    <option value="6">6th Semester</option>
-                    <option value="7">7th Semester</option>
-                    <option value="8">8th Semester</option>
-                  </select>
-                </div>
-
-                <div className="mb-6">
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Academic Year *
-                  </label>
-                  <input
-                    type="text"
-                    value={editSemesterYear}
-                    onChange={(e) => setEditSemesterYear(e.target.value)}
-                    placeholder="Enter academic year (e.g., 2024-25)"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={saveSemesterEdit}
-                    disabled={!editSemesterNumber || !editSemesterYear.trim()}
-                    className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium shadow-lg transition-colors"
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    onClick={closeEditSemesterModal}
-                    className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 font-medium shadow-lg transition-colors"
                   >
                     Cancel
                   </button>
