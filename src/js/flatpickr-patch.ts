@@ -17,7 +17,7 @@ if (this.config.mode === 'range' && this.selectedDates.length === 2) {
       dateObj?: Date;
     }
 
-    allDays.forEach((dayNode) => {
+    allDays.forEach((dayNode: HTMLElement) => {
       const day = dayNode as FlatpickrDayElement;
       if (day.dateObj) {
         const date = new Date(day.dateObj);

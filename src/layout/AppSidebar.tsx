@@ -1,11 +1,13 @@
 import { useCallback } from "react";
 import { Link, useLocation } from "react-router";
 
-// Only import icons needed for LMS - Dashboard and Calendar
+// Only import icons needed for LMS - Dashboard, Calendar, and Department
 import {
   CalenderIcon,
   GridIcon,
   HorizontaLDots,
+  AngleDownIcon,
+  BoxIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -13,7 +15,8 @@ import SidebarWidget from "./SidebarWidget";
 type NavItem = {
   name: string;
   icon: React.ReactNode;
-  path: string;
+  path?: string;
+  submenu?: NavItem[];
 };
 
 const navItems: NavItem[] = [
@@ -27,10 +30,41 @@ const navItems: NavItem[] = [
     name: "Calendar",
     path: "/calendar",
   },
+  {
+    icon: <BoxIcon />,
+    name: "Department",
+    submenu: [
+      {
+        icon: <GridIcon />,
+        name: "IT",
+        path: "/department/it",
+      },
+      {
+        icon: <GridIcon />,
+        name: "ECE",
+        path: "/department/ece",
+      },
+      {
+        icon: <GridIcon />,
+        name: "EEE",
+        path: "/department/eee",
+      },
+      {
+        icon: <GridIcon />,
+        name: "CIVIL",
+        path: "/department/civil",
+      },
+      {
+        icon: <GridIcon />,
+        name: "MECHANICAL",
+        path: "/department/mechanical",
+      },
+    ],
+  },
 ];
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered, openSubmenu, toggleSubmenu } = useSidebar();
   const location = useLocation();
 
   const isActive = useCallback(
@@ -42,25 +76,75 @@ const AppSidebar: React.FC = () => {
     <ul className="flex flex-col gap-4">
       {items.map((nav) => (
         <li key={nav.name}>
-          <Link
-            to={nav.path}
-            className={`menu-item group ${
-              isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
-            }`}
-          >
-            <span
-              className={`menu-item-icon-size ${
-                isActive(nav.path)
-                  ? "menu-item-icon-active"
-                  : "menu-item-icon-inactive"
+          {nav.submenu ? (
+            // Menu item with submenu
+            <div>
+              <button
+                onClick={() => toggleSubmenu(nav.name)}
+                className={`menu-item group w-full text-left ${
+                  openSubmenu === nav.name ? "menu-item-active" : "menu-item-inactive"
+                }`}
+              >
+                <span
+                  className={`menu-item-icon-size ${
+                    openSubmenu === nav.name
+                      ? "menu-item-icon-active"
+                      : "menu-item-icon-inactive"
+                  }`}
+                >
+                  {nav.icon}
+                </span>
+                {(isExpanded || isHovered || isMobileOpen) && (
+                  <>
+                    <span className="menu-item-text flex-1">{nav.name}</span>
+                    <AngleDownIcon 
+                      className={`size-4 transition-transform duration-200 ${
+                        openSubmenu === nav.name ? "rotate-180" : ""
+                      }`}
+                    />
+                  </>
+                )}
+              </button>
+              {/* Submenu */}
+              {openSubmenu === nav.name && (isExpanded || isHovered || isMobileOpen) && (
+                <ul className="mt-2 ml-6 space-y-2">
+                  {nav.submenu.map((subItem) => (
+                    <li key={subItem.name}>
+                      <Link
+                        to={subItem.path!}
+                        className={`menu-dropdown-item ${
+                          isActive(subItem.path!) ? "menu-dropdown-item-active" : "menu-dropdown-item-inactive"
+                        }`}
+                      >
+                        <span className="menu-item-text">{subItem.name}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : (
+            // Regular menu item
+            <Link
+              to={nav.path!}
+              className={`menu-item group ${
+                isActive(nav.path!) ? "menu-item-active" : "menu-item-inactive"
               }`}
             >
-              {nav.icon}
-            </span>
-            {(isExpanded || isHovered || isMobileOpen) && (
-              <span className="menu-item-text">{nav.name}</span>
-            )}
-          </Link>
+              <span
+                className={`menu-item-icon-size ${
+                  isActive(nav.path!)
+                    ? "menu-item-icon-active"
+                    : "menu-item-icon-inactive"
+                }`}
+              >
+                {nav.icon}
+              </span>
+              {(isExpanded || isHovered || isMobileOpen) && (
+                <span className="menu-item-text">{nav.name}</span>
+              )}
+            </Link>
+          )}
         </li>
       ))}
     </ul>
