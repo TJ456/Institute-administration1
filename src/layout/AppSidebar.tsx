@@ -1,13 +1,14 @@
 import { useCallback } from "react";
 import { Link, useLocation } from "react-router";
 
-// Only import icons needed for LMS - Dashboard, Calendar, and Department
+// Only import icons needed for LMS - Dashboard, Teacher, Department, and Student
 import {
-  CalenderIcon,
   GridIcon,
   HorizontaLDots,
   AngleDownIcon,
   BoxIcon,
+  UserIcon,
+  GroupIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -26,9 +27,9 @@ const navItems: NavItem[] = [
     path: "/dashboard",
   },
   {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
+    icon: <UserIcon />,
+    name: "Teacher",
+    path: "/teacher",
   },
   {
     icon: <BoxIcon />,
@@ -60,6 +61,11 @@ const navItems: NavItem[] = [
         path: "/department/mechanical",
       },
     ],
+  },
+  {
+    icon: <GroupIcon />,
+    name: "Student",
+    path: "/student",
   },
 ];
 

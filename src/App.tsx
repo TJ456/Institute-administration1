@@ -13,6 +13,9 @@ import EEEDepartment from "./pages/Department/EEE";
 import CivilDepartment from "./pages/Department/Civil";
 import MechanicalDepartment from "./pages/Department/Mechanical";
 import SemesterDetail from "./pages/SemesterDetail";
+// Teacher and Student imports
+import TeacherPage from "./pages/Teacher";
+import StudentPage from "./pages/Student";
 
 export default function App() {
   return (
@@ -23,9 +26,10 @@ export default function App() {
           {/* Redirect root to signin for LMS */}
           <Route index path="/" element={<Navigate to="/signin" replace />} />
 
-          {/* Dashboard Layout - Dashboard, Calendar, and Department pages */}
+          {/* Dashboard Layout - Dashboard, Teacher, Department, Student pages */}
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<Home />} />
+            <Route path="/teacher" element={<TeacherPage />} />
             <Route path="/calendar" element={<Calendar />} />
             
             {/* Department Routes */}
@@ -34,6 +38,8 @@ export default function App() {
             <Route path="/department/eee" element={<EEEDepartment />} />
             <Route path="/department/civil" element={<CivilDepartment />} />
             <Route path="/department/mechanical" element={<MechanicalDepartment />} />
+            
+            <Route path="/student" element={<StudentPage />} />
             
             {/* Semester Detail Routes */}
             <Route path="/:department/:programme/:batch/:semester" element={<SemesterDetail />} />
