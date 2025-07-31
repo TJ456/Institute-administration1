@@ -15,7 +15,7 @@ interface Batch {
   students: number;
   year: string;
   semester: string;
-  description: string;
+  description?: string;
   semesters: Semester[];
 }
 
@@ -47,11 +47,18 @@ export default function ITDepartment() {
   const [newBatchName, setNewBatchName] = useState("");
   const [newBatchYear, setNewBatchYear] = useState("");
   const [newBatchSemester, setNewBatchSemester] = useState("");
-  const [newBatchDescription, setNewBatchDescription] = useState("");
   const [activeBatchTabs, setActiveBatchTabs] = useState<{[key: number]: number}>({});
   
   // HOD Management states
   const [isAssignHODModalOpen, setIsAssignHODModalOpen] = useState(false);
+  
+  // Edit Semester states
+  const [isEditSemesterModalOpen, setIsEditSemesterModalOpen] = useState(false);
+  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null);
+  const [selectedBatch, setSelectedBatch] = useState<Batch | null>(null);
+  const [editSemesterNumber, setEditSemesterNumber] = useState("");
+  const [editSemesterYear, setEditSemesterYear] = useState("");
+  
   const [departmentInfo, setDepartmentInfo] = useState<DepartmentInfo>({
     email: "it.department@infuni.edu",
     password: "ITDept@2024",
@@ -80,7 +87,6 @@ export default function ITDepartment() {
           students: 60, 
           year: "2024-2028", 
           semester: "1st Semester", 
-          description: "First year B.Tech students specializing in Computer Science and Information Technology. Focus on programming fundamentals and mathematics.",
           semesters: [
             { id: 1, semNumber: 1, semYear: "2024-25", route: "/it/btech/batch1/sem1" },
             { id: 2, semNumber: 2, semYear: "2024-25", route: "/it/btech/batch1/sem2" },
@@ -98,7 +104,6 @@ export default function ITDepartment() {
           students: 58, 
           year: "2023-2027", 
           semester: "3rd Semester", 
-          description: "Second year B.Tech students with advanced programming concepts and data structures.",
           semesters: [
             { id: 9, semNumber: 1, semYear: "2023-24", route: "/it/btech/batch2/sem1" },
             { id: 10, semNumber: 2, semYear: "2023-24", route: "/it/btech/batch2/sem2" },
@@ -116,7 +121,6 @@ export default function ITDepartment() {
           students: 62, 
           year: "2022-2026", 
           semester: "5th Semester", 
-          description: "Third year B.Tech students focusing on software engineering and system design.",
           semesters: [
             { id: 17, semNumber: 1, semYear: "2022-23", route: "/it/btech/batch3/sem1" },
             { id: 18, semNumber: 2, semYear: "2022-23", route: "/it/btech/batch3/sem2" },
@@ -140,7 +144,6 @@ export default function ITDepartment() {
           students: 30, 
           year: "2024-2026", 
           semester: "1st Semester", 
-          description: "First year M.Tech students specializing in Advanced Computing and AI/ML technologies.",
           semesters: [
             { id: 25, semNumber: 1, semYear: "2024-25", route: "/it/mtech/batch1/sem1" },
             { id: 26, semNumber: 2, semYear: "2024-25", route: "/it/mtech/batch1/sem2" },
@@ -154,7 +157,6 @@ export default function ITDepartment() {
           students: 28, 
           year: "2023-2025", 
           semester: "3rd Semester", 
-          description: "Second year M.Tech students working on research projects and advanced algorithms.",
           semesters: [
             { id: 29, semNumber: 1, semYear: "2023-24", route: "/it/mtech/batch2/sem1" },
             { id: 30, semNumber: 2, semYear: "2023-24", route: "/it/mtech/batch2/sem2" },
@@ -174,7 +176,6 @@ export default function ITDepartment() {
           students: 45, 
           year: "2024-2027", 
           semester: "1st Semester", 
-          description: "First year BCA students learning computer applications and programming basics.",
           semesters: [
             { id: 33, semNumber: 1, semYear: "2024-25", route: "/it/bca/batch1/sem1" },
             { id: 34, semNumber: 2, semYear: "2024-25", route: "/it/bca/batch1/sem2" },
@@ -190,7 +191,6 @@ export default function ITDepartment() {
           students: 42, 
           year: "2023-2026", 
           semester: "3rd Semester", 
-          description: "Second year BCA students focusing on web development and database management.",
           semesters: [
             { id: 39, semNumber: 1, semYear: "2023-24", route: "/it/bca/batch2/sem1" },
             { id: 40, semNumber: 2, semYear: "2023-24", route: "/it/bca/batch2/sem2" },
@@ -212,7 +212,6 @@ export default function ITDepartment() {
           students: 35, 
           year: "2024-2026", 
           semester: "1st Semester", 
-          description: "First year MCA students with advanced computer applications and software development.",
           semesters: [
             { id: 45, semNumber: 1, semYear: "2024-25", route: "/it/mca/batch1/sem1" },
             { id: 46, semNumber: 2, semYear: "2024-25", route: "/it/mca/batch1/sem2" },
@@ -243,7 +242,6 @@ export default function ITDepartment() {
     setNewBatchName("");
     setNewBatchYear("");
     setNewBatchSemester("");
-    setNewBatchDescription("");
   };
 
   const addBatch = () => {
@@ -256,7 +254,6 @@ export default function ITDepartment() {
             students: 0,
             year: newBatchYear.trim() || "TBD",
             semester: newBatchSemester.trim() || "TBD",
-            description: newBatchDescription.trim() || "No description provided",
             semesters: [] // Start with empty semesters array
           };
           return {
@@ -286,6 +283,50 @@ export default function ITDepartment() {
     closeAssignHODModal();
   };
 
+  // Edit Semester functions
+  const openEditSemesterModal = (semester: Semester, batch: Batch) => {
+    setSelectedSemester(semester);
+    setSelectedBatch(batch);
+    setEditSemesterNumber(semester.semNumber.toString());
+    setEditSemesterYear(semester.semYear);
+    setIsEditSemesterModalOpen(true);
+  };
+
+  const closeEditSemesterModal = () => {
+    setIsEditSemesterModalOpen(false);
+    setSelectedSemester(null);
+    setSelectedBatch(null);
+    setEditSemesterNumber("");
+    setEditSemesterYear("");
+  };
+
+  const saveSemesterEdit = () => {
+    if (selectedSemester && selectedBatch && editSemesterNumber && editSemesterYear) {
+      setCourses(prev => prev.map(course => ({
+        ...course,
+        batches: course.batches.map(batch => {
+          if (batch.id === selectedBatch.id) {
+            return {
+              ...batch,
+              semesters: batch.semesters.map(sem => {
+                if (sem.id === selectedSemester.id) {
+                  return {
+                    ...sem,
+                    semNumber: parseInt(editSemesterNumber),
+                    semYear: editSemesterYear
+                  };
+                }
+                return sem;
+              })
+            };
+          }
+          return batch;
+        })
+      })));
+      closeEditSemesterModal();
+    }
+  };
+
   return (
     <>
       <PageMeta
@@ -294,10 +335,10 @@ export default function ITDepartment() {
       />
       <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
         {/* Header */}
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-title-md2 font-semibold text-black dark:text-white">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-4xl md:text-5xl font-bold text-black bg-clip-text ">
             Information Technology (IT)
-          </h2>
+          </h1>
           <button 
             onClick={() => setIsAddBatchModalOpen(true)}
             className="inline-flex items-center justify-center rounded-md bg-blue-600 py-2 px-4 text-center font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 lg:px-6 xl:px-8 shadow-lg"
@@ -464,10 +505,6 @@ export default function ITDepartment() {
                                 <p className="text-black dark:text-white">{activeBatch.semester}</p>
                               </div>
                             </div>
-                            <div>
-                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Description:</span>
-                              <p className="text-black dark:text-white mt-1">{activeBatch.description}</p>
-                            </div>
                           </div>
 
                           {/* Semester Table */}
@@ -503,15 +540,26 @@ export default function ITDepartment() {
                                           {semester.semYear}
                                         </td>
                                         <td className="px-4 py-3 text-sm">
-                                          <Link
-                                            to={semester.route}
-                                            className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                                          >
-                                            View Details
-                                            <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                            </svg>
-                                          </Link>
+                                          <div className="flex items-center gap-2">
+                                            <Link
+                                              to={semester.route}
+                                              className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                                            >
+                                              View Details
+                                              <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                              </svg>
+                                            </Link>
+                                            <button
+                                              onClick={() => openEditSemesterModal(semester, activeBatch)}
+                                              className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors"
+                                            >
+                                              Edit
+                                              <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                              </svg>
+                                            </button>
+                                          </div>
                                         </td>
                                       </tr>
                                     ))
@@ -616,26 +664,16 @@ export default function ITDepartment() {
               </div>
 
               <div className="mb-6">
-                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Description
-                </label>
-                <textarea
-                  value={newBatchDescription}
-                  onChange={(e) => setNewBatchDescription(e.target.value)}
-                  placeholder="Enter batch description, specialization, or additional details..."
-                  rows={3}
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={addBatch}
                   disabled={!newBatchName.trim()}
-                  className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium shadow-lg transition-colors"
+                  className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium shadow-lg transition-colors w-full"
                 >
                   Add Batch
                 </button>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={closeAddBatchModal}
                   className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 font-medium shadow-lg transition-colors"
@@ -708,6 +746,87 @@ export default function ITDepartment() {
                   <button
                     onClick={closeAssignHODModal}
                     className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Semester Modal */}
+        {isEditSemesterModalOpen && selectedSemester && selectedBatch && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 relative z-[100000]">
+              <div className="bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Edit Semester
+                  </h3>
+                  <button
+                    onClick={closeEditSemesterModal}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    Editing: {selectedBatch.name} - Semester {selectedSemester.semNumber}
+                  </p>
+                </div>
+
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Semester Number *
+                  </label>
+                  <select
+                    value={editSemesterNumber}
+                    onChange={(e) => setEditSemesterNumber(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  >
+                    <option value="">Select Semester</option>
+                    <option value="1">1st Semester</option>
+                    <option value="2">2nd Semester</option>
+                    <option value="3">3rd Semester</option>
+                    <option value="4">4th Semester</option>
+                    <option value="5">5th Semester</option>
+                    <option value="6">6th Semester</option>
+                    <option value="7">7th Semester</option>
+                    <option value="8">8th Semester</option>
+                  </select>
+                </div>
+
+                <div className="mb-6">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Academic Year *
+                  </label>
+                  <input
+                    type="text"
+                    value={editSemesterYear}
+                    onChange={(e) => setEditSemesterYear(e.target.value)}
+                    placeholder="Enter academic year (e.g., 2024-25)"
+                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-3 px-4 text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={saveSemesterEdit}
+                    disabled={!editSemesterNumber || !editSemesterYear.trim()}
+                    className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium shadow-lg transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={closeEditSemesterModal}
+                    className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 font-medium shadow-lg transition-colors"
                   >
                     Cancel
                   </button>
