@@ -1,5 +1,13 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
+
+interface Semester {
+  id: number;
+  semNumber: number;
+  semYear: string;
+  route: string;
+}
 
 interface Batch {
   id: number;
@@ -8,12 +16,28 @@ interface Batch {
   year: string;
   semester: string;
   description: string;
+  semesters: Semester[];
 }
 
 interface Course {
   id: number;
   name: string;
   batches: Batch[];
+}
+
+interface Teacher {
+  id: number;
+  name: string;
+  designation: string;
+  experience: string;
+  specialization: string;
+}
+
+interface DepartmentInfo {
+  email: string;
+  password: string;
+  hod: Teacher | null;
+  description: string;
 }
 
 export default function ITDepartment() {
@@ -25,38 +49,177 @@ export default function ITDepartment() {
   const [newBatchSemester, setNewBatchSemester] = useState("");
   const [newBatchDescription, setNewBatchDescription] = useState("");
   const [activeBatchTabs, setActiveBatchTabs] = useState<{[key: number]: number}>({});
+  
+  // HOD Management states
+  const [isAssignHODModalOpen, setIsAssignHODModalOpen] = useState(false);
+  const [departmentInfo, setDepartmentInfo] = useState<DepartmentInfo>({
+    email: "it.department@infuni.edu",
+    password: "ITDept@2024",
+    hod: null,
+    description: "The Information Technology Department is dedicated to providing cutting-edge education in computer science, software engineering, and emerging technologies. Our curriculum is designed to prepare students for the rapidly evolving tech industry with hands-on experience in programming, data structures, algorithms, database management, web development, mobile app development, artificial intelligence, and machine learning. We focus on both theoretical foundations and practical applications to ensure our graduates are industry-ready."
+  });
+  
+  // Available teachers for HOD assignment
+  const [availableTeachers] = useState<Teacher[]>([
+    { id: 1, name: "Dr. Rajesh Kumar", designation: "Professor", experience: "15 years", specialization: "Data Science & AI" },
+    { id: 2, name: "Prof. Priya Sharma", designation: "Associate Professor", experience: "12 years", specialization: "Software Engineering" },
+    { id: 3, name: "Dr. Amit Singh", designation: "Professor", experience: "18 years", specialization: "Computer Networks" },
+    { id: 4, name: "Dr. Neha Gupta", designation: "Assistant Professor", experience: "8 years", specialization: "Database Systems" },
+    { id: 5, name: "Prof. Suresh Reddy", designation: "Associate Professor", experience: "14 years", specialization: "Web Technologies" },
+    { id: 6, name: "Dr. Anita Verma", designation: "Professor", experience: "16 years", specialization: "Machine Learning" }
+  ]);
 
   const [courses, setCourses] = useState<Course[]>([
     {
       id: 1,
       name: "B.Tech",
       batches: [
-        { id: 1, name: "Batch 1", students: 60, year: "2024-2028", semester: "1st Semester", description: "First year B.Tech students specializing in Computer Science and Information Technology. Focus on programming fundamentals and mathematics." },
-        { id: 2, name: "Batch 2", students: 58, year: "2023-2027", semester: "3rd Semester", description: "Second year B.Tech students with advanced programming concepts and data structures." },
-        { id: 3, name: "Batch 3", students: 62, year: "2022-2026", semester: "5th Semester", description: "Third year B.Tech students focusing on software engineering and system design." }
+        { 
+          id: 1, 
+          name: "Batch 1", 
+          students: 60, 
+          year: "2024-2028", 
+          semester: "1st Semester", 
+          description: "First year B.Tech students specializing in Computer Science and Information Technology. Focus on programming fundamentals and mathematics.",
+          semesters: [
+            { id: 1, semNumber: 1, semYear: "2024-25", route: "/it/btech/batch1/sem1" },
+            { id: 2, semNumber: 2, semYear: "2024-25", route: "/it/btech/batch1/sem2" },
+            { id: 3, semNumber: 3, semYear: "2025-26", route: "/it/btech/batch1/sem3" },
+            { id: 4, semNumber: 4, semYear: "2025-26", route: "/it/btech/batch1/sem4" },
+            { id: 5, semNumber: 5, semYear: "2026-27", route: "/it/btech/batch1/sem5" },
+            { id: 6, semNumber: 6, semYear: "2026-27", route: "/it/btech/batch1/sem6" },
+            { id: 7, semNumber: 7, semYear: "2027-28", route: "/it/btech/batch1/sem7" },
+            { id: 8, semNumber: 8, semYear: "2027-28", route: "/it/btech/batch1/sem8" }
+          ]
+        },
+        { 
+          id: 2, 
+          name: "Batch 2", 
+          students: 58, 
+          year: "2023-2027", 
+          semester: "3rd Semester", 
+          description: "Second year B.Tech students with advanced programming concepts and data structures.",
+          semesters: [
+            { id: 9, semNumber: 1, semYear: "2023-24", route: "/it/btech/batch2/sem1" },
+            { id: 10, semNumber: 2, semYear: "2023-24", route: "/it/btech/batch2/sem2" },
+            { id: 11, semNumber: 3, semYear: "2024-25", route: "/it/btech/batch2/sem3" },
+            { id: 12, semNumber: 4, semYear: "2024-25", route: "/it/btech/batch2/sem4" },
+            { id: 13, semNumber: 5, semYear: "2025-26", route: "/it/btech/batch2/sem5" },
+            { id: 14, semNumber: 6, semYear: "2025-26", route: "/it/btech/batch2/sem6" },
+            { id: 15, semNumber: 7, semYear: "2026-27", route: "/it/btech/batch2/sem7" },
+            { id: 16, semNumber: 8, semYear: "2026-27", route: "/it/btech/batch2/sem8" }
+          ]
+        },
+        { 
+          id: 3, 
+          name: "Batch 3", 
+          students: 62, 
+          year: "2022-2026", 
+          semester: "5th Semester", 
+          description: "Third year B.Tech students focusing on software engineering and system design.",
+          semesters: [
+            { id: 17, semNumber: 1, semYear: "2022-23", route: "/it/btech/batch3/sem1" },
+            { id: 18, semNumber: 2, semYear: "2022-23", route: "/it/btech/batch3/sem2" },
+            { id: 19, semNumber: 3, semYear: "2023-24", route: "/it/btech/batch3/sem3" },
+            { id: 20, semNumber: 4, semYear: "2023-24", route: "/it/btech/batch3/sem4" },
+            { id: 21, semNumber: 5, semYear: "2024-25", route: "/it/btech/batch3/sem5" },
+            { id: 22, semNumber: 6, semYear: "2024-25", route: "/it/btech/batch3/sem6" },
+            { id: 23, semNumber: 7, semYear: "2025-26", route: "/it/btech/batch3/sem7" },
+            { id: 24, semNumber: 8, semYear: "2025-26", route: "/it/btech/batch3/sem8" }
+          ]
+        }
       ]
     },
     {
       id: 2,
       name: "M.Tech",
       batches: [
-        { id: 4, name: "Batch 1", students: 30, year: "2024-2026", semester: "1st Semester", description: "First year M.Tech students specializing in Advanced Computing and AI/ML technologies." },
-        { id: 5, name: "Batch 2", students: 28, year: "2023-2025", semester: "3rd Semester", description: "Second year M.Tech students working on research projects and advanced algorithms." }
+        { 
+          id: 4, 
+          name: "Batch 1", 
+          students: 30, 
+          year: "2024-2026", 
+          semester: "1st Semester", 
+          description: "First year M.Tech students specializing in Advanced Computing and AI/ML technologies.",
+          semesters: [
+            { id: 25, semNumber: 1, semYear: "2024-25", route: "/it/mtech/batch1/sem1" },
+            { id: 26, semNumber: 2, semYear: "2024-25", route: "/it/mtech/batch1/sem2" },
+            { id: 27, semNumber: 3, semYear: "2025-26", route: "/it/mtech/batch1/sem3" },
+            { id: 28, semNumber: 4, semYear: "2025-26", route: "/it/mtech/batch1/sem4" }
+          ]
+        },
+        { 
+          id: 5, 
+          name: "Batch 2", 
+          students: 28, 
+          year: "2023-2025", 
+          semester: "3rd Semester", 
+          description: "Second year M.Tech students working on research projects and advanced algorithms.",
+          semesters: [
+            { id: 29, semNumber: 1, semYear: "2023-24", route: "/it/mtech/batch2/sem1" },
+            { id: 30, semNumber: 2, semYear: "2023-24", route: "/it/mtech/batch2/sem2" },
+            { id: 31, semNumber: 3, semYear: "2024-25", route: "/it/mtech/batch2/sem3" },
+            { id: 32, semNumber: 4, semYear: "2024-25", route: "/it/mtech/batch2/sem4" }
+          ]
+        }
       ]
     },
     {
       id: 3,
       name: "BCA",
       batches: [
-        { id: 6, name: "Batch 1", students: 45, year: "2024-2027", semester: "1st Semester", description: "First year BCA students learning computer applications and programming basics." },
-        { id: 7, name: "Batch 2", students: 42, year: "2023-2026", semester: "3rd Semester", description: "Second year BCA students focusing on web development and database management." }
+        { 
+          id: 6, 
+          name: "Batch 1", 
+          students: 45, 
+          year: "2024-2027", 
+          semester: "1st Semester", 
+          description: "First year BCA students learning computer applications and programming basics.",
+          semesters: [
+            { id: 33, semNumber: 1, semYear: "2024-25", route: "/it/bca/batch1/sem1" },
+            { id: 34, semNumber: 2, semYear: "2024-25", route: "/it/bca/batch1/sem2" },
+            { id: 35, semNumber: 3, semYear: "2025-26", route: "/it/bca/batch1/sem3" },
+            { id: 36, semNumber: 4, semYear: "2025-26", route: "/it/bca/batch1/sem4" },
+            { id: 37, semNumber: 5, semYear: "2026-27", route: "/it/bca/batch1/sem5" },
+            { id: 38, semNumber: 6, semYear: "2026-27", route: "/it/bca/batch1/sem6" }
+          ]
+        },
+        { 
+          id: 7, 
+          name: "Batch 2", 
+          students: 42, 
+          year: "2023-2026", 
+          semester: "3rd Semester", 
+          description: "Second year BCA students focusing on web development and database management.",
+          semesters: [
+            { id: 39, semNumber: 1, semYear: "2023-24", route: "/it/bca/batch2/sem1" },
+            { id: 40, semNumber: 2, semYear: "2023-24", route: "/it/bca/batch2/sem2" },
+            { id: 41, semNumber: 3, semYear: "2024-25", route: "/it/bca/batch2/sem3" },
+            { id: 42, semNumber: 4, semYear: "2024-25", route: "/it/bca/batch2/sem4" },
+            { id: 43, semNumber: 5, semYear: "2025-26", route: "/it/bca/batch2/sem5" },
+            { id: 44, semNumber: 6, semYear: "2025-26", route: "/it/bca/batch2/sem6" }
+          ]
+        }
       ]
     },
     {
       id: 4,
       name: "MCA",
       batches: [
-        { id: 8, name: "Batch 1", students: 35, year: "2024-2026", semester: "1st Semester", description: "First year MCA students with advanced computer applications and software development." }
+        { 
+          id: 8, 
+          name: "Batch 1", 
+          students: 35, 
+          year: "2024-2026", 
+          semester: "1st Semester", 
+          description: "First year MCA students with advanced computer applications and software development.",
+          semesters: [
+            { id: 45, semNumber: 1, semYear: "2024-25", route: "/it/mca/batch1/sem1" },
+            { id: 46, semNumber: 2, semYear: "2024-25", route: "/it/mca/batch1/sem2" },
+            { id: 47, semNumber: 3, semYear: "2025-26", route: "/it/mca/batch1/sem3" },
+            { id: 48, semNumber: 4, semYear: "2025-26", route: "/it/mca/batch1/sem4" }
+          ]
+        }
       ]
     }
   ]);
@@ -93,7 +256,8 @@ export default function ITDepartment() {
             students: 0,
             year: newBatchYear.trim() || "TBD",
             semester: newBatchSemester.trim() || "TBD",
-            description: newBatchDescription.trim() || "No description provided"
+            description: newBatchDescription.trim() || "No description provided",
+            semesters: [] // Start with empty semesters array
           };
           return {
             ...course,
@@ -104,6 +268,22 @@ export default function ITDepartment() {
       }));
       closeAddBatchModal();
     }
+  };
+
+  const openAssignHODModal = () => {
+    setIsAssignHODModalOpen(true);
+  };
+
+  const closeAssignHODModal = () => {
+    setIsAssignHODModalOpen(false);
+  };
+
+  const assignHOD = (teacher: Teacher) => {
+    setDepartmentInfo(prev => ({
+      ...prev,
+      hod: teacher
+    }));
+    closeAssignHODModal();
   };
 
   return (
@@ -126,11 +306,79 @@ export default function ITDepartment() {
           </button>
         </div>
 
+        {/* Department Information Section */}
+        <div className="mb-6 bg-white dark:bg-boxdark rounded-lg border border-stroke dark:border-strokedark shadow-default">
+          <div className="px-6 py-4 border-b border-stroke dark:border-strokedark">
+            <h3 className="text-xl font-semibold text-black dark:text-white">
+              Department Information
+            </h3>
+          </div>
+          <div className="p-6">
+            {/* Department Description */}
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold text-black dark:text-white mb-3">About the Department</h4>
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                {departmentInfo.description}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Department Credentials */}
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <h4 className="text-lg font-semibold text-black dark:text-white mb-3">Department Credentials</h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Department Email</label>
+                    <p className="text-black dark:text-white font-mono bg-white dark:bg-gray-700 px-3 py-2 rounded border">
+                      {departmentInfo.email}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Department Password</label>
+                    <p className="text-black dark:text-white font-mono bg-white dark:bg-gray-700 px-3 py-2 rounded border">
+                      {departmentInfo.password}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* HOD Information */}
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <h4 className="text-lg font-semibold text-black dark:text-white mb-3">Head of Department</h4>
+                {departmentInfo.hod ? (
+                  <div className="space-y-2">
+                    <p className="text-black dark:text-white font-semibold">{departmentInfo.hod.name}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{departmentInfo.hod.designation}</p>
+                    <p className="text-gray-600 dark:text-gray-400">Experience: {departmentInfo.hod.experience}</p>
+                    <p className="text-gray-600 dark:text-gray-400">Specialization: {departmentInfo.hod.specialization}</p>
+                    <button
+                      onClick={openAssignHODModal}
+                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                    >
+                      Change HOD
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500 dark:text-gray-400 mb-3">No HOD assigned</p>
+                    <button
+                      onClick={openAssignHODModal}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Assign HOD
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Courses and Batches */}
         <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="px-6 py-4 border-b border-stroke dark:border-strokedark">
             <h3 className="text-xl font-semibold text-black dark:text-white">
-              Courses & Batches
+              Programmes
             </h3>
           </div>
           
@@ -222,17 +470,60 @@ export default function ITDepartment() {
                             </div>
                           </div>
 
-                          {/* Table Placeholder */}
+                          {/* Semester Table */}
                           <div className="border border-stroke dark:border-strokedark rounded-lg">
                             <div className="px-4 py-3 border-b border-stroke dark:border-strokedark bg-gray-50 dark:bg-gray-800">
                               <h6 className="text-sm font-semibold text-black dark:text-white">
-                                Student Information Table
+                                Semester Information
                               </h6>
                             </div>
-                            <div className="p-4">
-                              <p className="text-gray-500 dark:text-gray-400 text-center">
-                                Table content will be added here later...
-                              </p>
+                            <div className="overflow-x-auto">
+                              <table className="w-full">
+                                <thead className="bg-gray-50 dark:bg-gray-800">
+                                  <tr>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                      Sem Number
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                      Sem Year
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                      Action
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody className="bg-white dark:bg-boxdark divide-y divide-gray-200 dark:divide-gray-700">
+                                  {activeBatch.semesters.length > 0 ? (
+                                    activeBatch.semesters.map((semester) => (
+                                      <tr key={semester.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
+                                          Semester {semester.semNumber}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                          {semester.semYear}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm">
+                                          <Link
+                                            to={semester.route}
+                                            className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                                          >
+                                            View Details
+                                            <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                          </Link>
+                                        </td>
+                                      </tr>
+                                    ))
+                                  ) : (
+                                    <tr>
+                                      <td colSpan={3} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        No semesters added yet
+                                      </td>
+                                    </tr>
+                                  )}
+                                </tbody>
+                              </table>
                             </div>
                           </div>
                         </div>
@@ -352,6 +643,75 @@ export default function ITDepartment() {
                   Cancel
                 </button>
               </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Assign HOD Modal */}
+        {isAssignHODModalOpen && (
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700 relative z-[100000]">
+              <div className="sticky top-0 bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Assign Head of Department
+                  </h3>
+                  <button
+                    onClick={closeAssignHODModal}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  Select a teacher from the available faculty to assign as Head of Department:
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {availableTeachers.map((teacher) => (
+                    <div key={teacher.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            {teacher.name}
+                          </h4>
+                          <p className="text-blue-600 dark:text-blue-400 font-medium">
+                            {teacher.designation}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => assignHOD(teacher)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                        >
+                          Assign
+                        </button>
+                      </div>
+                      <div className="space-y-1 text-sm">
+                        <p className="text-gray-600 dark:text-gray-300">
+                          <span className="font-medium">Experience:</span> {teacher.experience}
+                        </p>
+                        <p className="text-gray-600 dark:text-gray-300">
+                          <span className="font-medium">Specialization:</span> {teacher.specialization}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-end mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={closeAssignHODModal}
+                    className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>

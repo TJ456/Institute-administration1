@@ -12,6 +12,7 @@ import ECEDepartment from "./pages/Department/ECE";
 import EEEDepartment from "./pages/Department/EEE";
 import CivilDepartment from "./pages/Department/Civil";
 import MechanicalDepartment from "./pages/Department/Mechanical";
+import SemesterDetail from "./pages/SemesterDetail";
 
 export default function App() {
   return (
@@ -33,6 +34,9 @@ export default function App() {
             <Route path="/department/eee" element={<EEEDepartment />} />
             <Route path="/department/civil" element={<CivilDepartment />} />
             <Route path="/department/mechanical" element={<MechanicalDepartment />} />
+            
+            {/* Semester Detail Routes */}
+            <Route path="/:department/:programme/:batch/:semester" element={<SemesterDetail />} />
           </Route>
 
           {/* Auth Layout */}

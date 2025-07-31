@@ -130,7 +130,7 @@ export default function ITDepartment() {
         <div className="rounded-lg border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="px-6 py-4 border-b border-stroke dark:border-strokedark">
             <h3 className="text-xl font-semibold text-black dark:text-white">
-              Courses & Batches
+              Programmes
             </h3>
           </div>
           
