@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
 
 // Only import icons needed for LMS - Dashboard, Teacher, Department, and Student
@@ -20,58 +20,128 @@ type NavItem = {
   submenu?: NavItem[];
 };
 
-const navItems: NavItem[] = [
-  {
-    icon: <GridIcon />,
-    name: "Dashboard",
-    path: "/",
-  },
-  {
-    icon: <UserIcon />,
-    name: "Teacher",
-    path: "/teacher",
-  },
-  {
-    icon: <BoxIcon />,
-    name: "Department",
-    submenu: [
-      {
-        icon: <GridIcon />,
-        name: "IT",
-        path: "/department/it",
-      },
-      {
-        icon: <GridIcon />,
-        name: "ECE",
-        path: "/department/ece",
-      },
-      {
-        icon: <GridIcon />,
-        name: "EEE",
-        path: "/department/eee",
-      },
-      {
-        icon: <GridIcon />,
-        name: "CIVIL",
-        path: "/department/civil",
-      },
-      {
-        icon: <GridIcon />,
-        name: "MECHANICAL",
-        path: "/department/mechanical",
-      },
-    ],
-  },
-  {
-    icon: <GroupIcon />,
-    name: "Student",
-    path: "/student",
-  },
-];
+interface ApiDepartment {
+  id: number;
+  name: string;
+  shortname: string;
+  email: string;
+  created_at: string;
+  role: string;
+  user_id: number;
+  current_hod: number | null;
+  institute: number;
+  programs: number[];
+}
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered, openSubmenu, toggleSubmenu } = useSidebar();
   const location = useLocation();
+  const [navItems, setNavItems] = useState<NavItem[]>([]);
+
+  // Fetch departments from API
+  useEffect(() => {
+    // Static fallback navigation
+    const staticNavItems: NavItem[] = [
+      {
+        icon: <GridIcon />,
+        name: "Dashboard",
+        path: "/",
+      },
+      {
+        icon: <UserIcon />,
+        name: "Teacher",
+        path: "/teacher",
+      },
+      {
+        icon: <BoxIcon />,
+        name: "Department",
+        submenu: [
+          {
+            icon: <GridIcon />,
+            name: "IT",
+            path: "/department/it",
+          },
+          {
+            icon: <GridIcon />,
+            name: "ECE",
+            path: "/department/ece",
+          },
+          {
+            icon: <GridIcon />,
+            name: "EEE",
+            path: "/department/eee",
+          },
+          {
+            icon: <GridIcon />,
+            name: "CSE",
+            path: "/department/cse",
+          },
+          {
+            icon: <GridIcon />,
+            name: "CIVIL",
+            path: "/department/civil",
+          },
+          {
+            icon: <GridIcon />,
+            name: "MECHANICAL",
+            path: "/department/mechanical",
+          },
+        ],
+      },
+      {
+        icon: <GroupIcon />,
+        name: "Student",
+        path: "/student",
+      },
+    ];
+
+    const fetchDepartments = async () => {
+      try {
+        const response = await fetch('http://43.204.212.86/department/list/');
+        const data = await response.json();
+        
+        // Create dynamic nav items
+        const departmentSubmenu: NavItem[] = [
+          ...data.map((dept: ApiDepartment) => ({
+            icon: <GridIcon />,
+            name: dept.shortname,
+            path: `/department/${dept.shortname.toLowerCase()}`,
+          }))
+        ];
+
+        const dynamicNavItems: NavItem[] = [
+          {
+            icon: <GridIcon />,
+            name: "Dashboard",
+            path: "/",
+          },
+          {
+            icon: <UserIcon />,
+            name: "Teacher",
+            path: "/teacher",
+          },
+          {
+            icon: <BoxIcon />,
+            name: "Department",
+            submenu: departmentSubmenu,
+          },
+          {
+            icon: <GroupIcon />,
+            name: "Student",
+            path: "/student",
+          },
+        ];
+
+        setNavItems(dynamicNavItems);
+      } catch (error) {
+        console.error('Error fetching departments:', error);
+        // Fallback to static navigation if API fails
+        setNavItems(staticNavItems);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
 
   const isActive = useCallback(
     (path: string) => location.pathname === path,

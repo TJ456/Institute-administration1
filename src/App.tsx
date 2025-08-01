@@ -7,10 +7,10 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import UserProfiles from "./pages/UserProfiles";
-// Department imports
 import ITDepartment from "./pages/Department/IT";
 import ECEDepartment from "./pages/Department/ECE";
 import EEEDepartment from "./pages/Department/EEE";
+import CSEDepartment from "./pages/Department/CSE";
 import CivilDepartment from "./pages/Department/Civil";
 import MechanicalDepartment from "./pages/Department/Mechanical";
 import SemesterDetail from "./pages/SemesterDetail";
@@ -66,6 +66,7 @@ export default function App() {
             <Route path="/department/it" element={<ITDepartment />} />
             <Route path="/department/ece" element={<ECEDepartment />} />
             <Route path="/department/eee" element={<EEEDepartment />} />
+            <Route path="/department/cse" element={<CSEDepartment />} />
             <Route path="/department/civil" element={<CivilDepartment />} />
             <Route path="/department/mechanical" element={<MechanicalDepartment />} />
             
