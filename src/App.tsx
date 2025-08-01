@@ -6,6 +6,7 @@ import Calendar from "./pages/Calendar";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import { useEffect, useState } from "react";
 // Department imports
 import ITDepartment from "./pages/Department/IT";
 import ECEDepartment from "./pages/Department/ECE";
@@ -17,17 +18,32 @@ import SemesterDetail from "./pages/SemesterDetail";
 import TeacherPage from "./pages/Teacher";
 import StudentPage from "./pages/Student";
 
+
+// Check if user is authenticated
+const isAuthenticated = () => {
+  return localStorage.getItem("authToken") !== null;
+};
+
+// Protected Route component - redirects to login if not authenticated
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  return isAuthenticated() ? <>{children}</> : <Navigate to="/signin" replace />;
+};
+
 export default function App() {
   return (
     <>
       <Router>
         <ScrollToTop />
         <Routes>
-          {/* Redirect root to signin for LMS */}
-          <Route index path="/" element={<Navigate to="/signin" replace />} />
+          {/* Redirect root based on auth status */}
+          <Route index path="/" element={<Navigate to={isAuthenticated() ? "/dashboard" : "/signin"} replace />} />
 
           {/* Dashboard Layout - Dashboard, Teacher, Department, Student pages */}
-          <Route element={<AppLayout />}>
+          <Route element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }>
             <Route path="/dashboard" element={<Home />} />
             <Route path="/teacher" element={<TeacherPage />} />
             <Route path="/calendar" element={<Calendar />} />
@@ -46,7 +62,7 @@ export default function App() {
           </Route>
 
           {/* Auth Layout */}
-          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signin" element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <SignIn />} />
           {/* <Route path="/signup" element={<SignUp />} /> */} {/* Sign up route commented out */}
 
           {/* Fallback Route */}
