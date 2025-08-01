@@ -52,7 +52,7 @@ export default function SignInForm() {
     setLoginError("");
     
     try {
-      const response = await fetch("http://43.204.212.86/department/login/", {
+      const response = await fetch("http://43.204.212.86/institute/login/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

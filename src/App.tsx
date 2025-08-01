@@ -6,7 +6,7 @@ import Calendar from "./pages/Calendar";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
-
+import UserProfiles from "./pages/UserProfiles";
 // Department imports
 import ITDepartment from "./pages/Department/IT";
 import ECEDepartment from "./pages/Department/ECE";
@@ -60,6 +60,7 @@ export default function App() {
             <Route path="/dashboard" element={<Navigate to="/" replace />} />
             <Route path="/teacher" element={<TeacherPage />} />
             <Route path="/calendar" element={<Calendar />} />
+            <Route path="/profile" element={<UserProfiles />} />
             
             {/* Department Routes */}
             <Route path="/department/it" element={<ITDepartment />} />
