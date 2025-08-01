@@ -4,6 +4,7 @@ import { EyeCloseIcon, EyeIcon } from "../../icons"; // Removed ChevronLeftIcon 
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
+import { useAuth } from "../../context/AuthContext";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +15,7 @@ export default function SignInForm() {
   const [loginError, setLoginError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   // Email validation function
   const validateEmail = (email: string): boolean => {
@@ -67,27 +69,20 @@ export default function SignInForm() {
         // Login successful
         console.log("Login successful:", data);
         
-        // Store authentication tokens
-        if (data.access) {
-          localStorage.setItem("authToken", data.access);
-        }
-        if (data.refresh) {
-          localStorage.setItem("refreshToken", data.refresh);
-        }
+        // Create user info object
+        const userInfo = {
+          username: data.username,
+          email: data.email,
+          message: data.message,
+          user_id: data.user_id,
+          related_id: data.related_id
+        };
         
-        // Store user data
-       const userInfo = {
-  username: data.username,
-  email: data.email,
-  message: data.message,
-  user_id: data.user_id,
-  related_id: data.related_id
-};
-
-localStorage.setItem("user", JSON.stringify(userInfo));
+        // Use auth context to login and store data
+        login(data.access || '', data.refresh || '', userInfo);
         
-        // Navigate to root path (which now shows dashboard)
-        navigate("/");
+        // Navigate to root path (which now shows dashboard) with replace to prevent navigation issues
+        navigate("/", { replace: true });
       } else {
         // Login failed
         if (data.non_field_errors) {

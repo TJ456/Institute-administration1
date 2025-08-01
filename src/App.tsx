@@ -6,7 +6,7 @@ import Calendar from "./pages/Calendar";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
-import { useEffect, useState } from "react";
+
 // Department imports
 import ITDepartment from "./pages/Department/IT";
 import ECEDepartment from "./pages/Department/ECE";
@@ -26,17 +26,26 @@ const isAuthenticated = () => {
 
 // Protected Route component - redirects to login if not authenticated
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  return isAuthenticated() ? <>{children}</> : <Navigate to="/signin" replace />;
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/signin" replace />;
 };
+
+// SignIn Route - redirects to root if already authenticated
+const SignInRoute = () => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Navigate to="/" replace /> : <SignIn />;
+};
+
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <Router>
         <ScrollToTop />
         <Routes>
           {/* Auth Layout */}
-          <Route path="/signin" element={isAuthenticated() ? <Navigate to="/" replace /> : <SignIn />} />
+          <Route path="/signin" element={<SignInRoute />} />
           {/* <Route path="/signup" element={<SignUp />} /> */} {/* Sign up route commented out */}
 
           {/* Dashboard Layout - Dashboard, Teacher, Department, Student pages */}
@@ -73,6 +82,6 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-    </>
+    </AuthProvider>
   );
 }

@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useNavigate } from "react-router";
+import { useAuth } from "../../context/AuthContext";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [organizationName] = useState("Bengal College of Engineering");
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   // Load user data when component mounts
   useEffect(() => {
@@ -32,17 +34,31 @@ export default function UserDropdown() {
     setIsOpen(false);
   }
   
-  function handleSignOut() {
-    // Clear authentication tokens and user data
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
-    
-    // Close dropdown
-    closeDropdown();
-    
-    // Navigate to sign-in page
-    navigate("/signin");
+  async function handleSignOut() {
+    try {
+      // Close dropdown first
+      closeDropdown();
+      
+      // Use the context logout function to clear authentication state
+      logout();
+      
+      // Small delay to ensure UI updates before navigation
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Navigate to sign-in page with replace to prevent back navigation
+      navigate("/signin", { replace: true });
+      
+      // Force a page reload if needed as a fallback
+      setTimeout(() => {
+        if (window.location.pathname !== "/signin") {
+          window.location.href = "/signin";
+        }
+      }, 300);
+    } catch (error) {
+      console.error("Error during sign out:", error);
+      // Fallback if something goes wrong
+      window.location.href = "/signin";
+    }
   }
   return (
     <div className="relative">
