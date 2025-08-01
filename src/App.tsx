@@ -35,8 +35,9 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <Routes>
-          {/* Redirect root based on auth status */}
-          <Route index path="/" element={<Navigate to={isAuthenticated() ? "/dashboard" : "/signin"} replace />} />
+          {/* Auth Layout */}
+          <Route path="/signin" element={isAuthenticated() ? <Navigate to="/" replace /> : <SignIn />} />
+          {/* <Route path="/signup" element={<SignUp />} /> */} {/* Sign up route commented out */}
 
           {/* Dashboard Layout - Dashboard, Teacher, Department, Student pages */}
           <Route element={
@@ -44,7 +45,10 @@ export default function App() {
               <AppLayout />
             </ProtectedRoute>
           }>
-            <Route path="/dashboard" element={<Home />} />
+            {/* Root path shows dashboard */}
+            <Route index path="/" element={<Home />} />
+            {/* Redirect /dashboard to root for clean URL */}
+            <Route path="/dashboard" element={<Navigate to="/" replace />} />
             <Route path="/teacher" element={<TeacherPage />} />
             <Route path="/calendar" element={<Calendar />} />
             

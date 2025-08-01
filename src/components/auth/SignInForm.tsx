@@ -86,8 +86,8 @@ export default function SignInForm() {
 
 localStorage.setItem("user", JSON.stringify(userInfo));
         
-        // Navigate to dashboard
-        navigate("/dashboard");
+        // Navigate to root path (which now shows dashboard)
+        navigate("/");
       } else {
         // Login failed
         if (data.non_field_errors) {
